@@ -8,7 +8,7 @@ spec:
   
   source:
     repoURL: https://github.com/labibi1/visitor-counter-gitops.git
-    targetRevision: main
+    targetRevision: master
     path: k8s
   
   destination:
@@ -21,3 +21,30 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+
+
+
+
+# kubectl apply -f argocd-application.yaml
+# kubectl delete -f argocd-application.yaml
+
+# Option A: Using ArgoCD CLI
+
+# argocd app create visitor-counter \
+#   --repo https://github.com/labibi1/visitor-counter-gitops.git \
+#   --path k8s \
+#   --dest-server https://kubernetes.default.svc \
+#   --dest-namespace visitor-app \
+#   --sync-policy automated \
+#   --auto-prune \
+#   --self-heal
+
+
+# # Watch ArgoCD sync
+# argocd app get visitor-counter
+
+# # Watch pods come up
+# kubectl get pods -n visitor-app -w
+
+# # Check all resources
+# kubectl get all -n visitor-app
