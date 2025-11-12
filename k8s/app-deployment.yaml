@@ -13,9 +13,23 @@ spec:
       labels:
         app: visitor-counter
     spec:
+      # Wait for database to be ready before starting app
+      initContainers:
+      - name: wait-for-db
+        image: postgres:15-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h postgres -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+      
       containers:
       - name: app
-        image: curtis2025/visitor-counter:v1.0.0 #correcte the image
+        image: curtis2025/visitor-counter:v1.0.0
         ports:
         - containerPort: 5000
         env:
@@ -23,11 +37,6 @@ spec:
           value: "postgres"
         - name: DB_PORT
           value: "5432"
-        - name: DB_NAME
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_DB
         - name: DB_USER
           valueFrom:
             secretKeyRef:
@@ -38,6 +47,11 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
         resources:
           requests:
             memory: "128Mi"
@@ -49,11 +63,12 @@ spec:
           httpGet:
             path: /health
             port: 5000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 10
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /health
             port: 5000
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           periodSeconds: 5
