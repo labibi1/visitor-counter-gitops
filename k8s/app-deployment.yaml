@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: curtis2025/visitor-counter:v1.0.0
+        image: curtis2025/visitor-counter:v1.0.0 #correcte the image
         ports:
         - containerPort: 5000
         env:
